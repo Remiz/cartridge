@@ -571,7 +571,11 @@ class Cart(models.Model):
         """
         if not self.pk:
             self.save()
-        kwargs = {"sku": variation.sku, "unit_price": variation.price()}
+        kwargs = {
+          "sku": variation.sku,
+          "unit_price": variation.price(),
+          "defaults": {'quantity': quantity}
+        }
         item, created = self.items.get_or_create(**kwargs)
         if created:
             item.description = force_text(variation)
@@ -581,7 +585,8 @@ class Cart(models.Model):
             if image is not None:
                 item.image = force_text(image.file)
             variation.product.actions.added_to_cart()
-        item.quantity += quantity
+        else:
+          item.quantity += quantity
         item.save()
 
     def has_items(self):
